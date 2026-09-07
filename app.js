@@ -159,9 +159,10 @@ document.addEventListener('DOMContentLoaded', () => {
         backBtn.addEventListener('click', showHomePage);
     }
 
-    // 猫吉祥物彩蛋：点击随机换一句话
+    // 猫吉祥物彩蛋：点击随机换一句话 + 撒爱心
     const mascot = document.getElementById('catMascot');
     const bubble = document.getElementById('catBubble');
+    const heartsBox = document.getElementById('catHearts');
     if (mascot && bubble) {
         const meows = [
             '喵～ 有什么需要帮忙的吗？',
@@ -173,17 +174,54 @@ document.addEventListener('DOMContentLoaded', () => {
             '本喵不摸鱼，只在键盘上睡觉。',
         ];
         let meowTimer = null;
+        let happyTimer = null;
+        let meowIndex = 0;
+
+        // 撒爱心粒子
+        function popHearts() {
+            if (!heartsBox) return;
+            const glyphs = ['♥', '★', '🐾'];
+            for (let i = 0; i < 5; i++) {
+                const heart = document.createElement('span');
+                heart.className = 'float-heart';
+                heart.textContent = glyphs[Math.floor(Math.random() * glyphs.length)];
+                heart.style.left = (30 + Math.random() * 40) + '%';
+                heart.style.top = (30 + Math.random() * 20) + '%';
+                heart.style.fontSize = (16 + Math.random() * 14) + 'px';
+                heart.style.animationDelay = (i * 0.08) + 's';
+                heartsBox.appendChild(heart);
+                setTimeout(() => heart.remove(), 1800);
+            }
+        }
+
         mascot.addEventListener('click', () => {
             mascot.classList.remove('pounce');
             void mascot.offsetWidth; // 重置动画
             mascot.classList.add('pounce');
-            bubble.textContent = meows[Math.floor(Math.random() * meows.length)];
+
+            // 开心表情 ^^
+            mascot.classList.add('is-happy');
+            clearTimeout(happyTimer);
+            happyTimer = setTimeout(() => mascot.classList.remove('is-happy'), 900);
+
+            popHearts();
+
+            bubble.textContent = meows[meowIndex % meows.length];
+            meowIndex++;
             bubble.classList.remove('show');
             void bubble.offsetWidth;
             bubble.classList.add('show');
             clearTimeout(meowTimer);
             meowTimer = setTimeout(() => bubble.classList.remove('show'), 3200);
         });
+
+        // 偶尔自己变成开心表情
+        setInterval(() => {
+            if (Math.random() < 0.35 && !mascot.classList.contains('is-happy')) {
+                mascot.classList.add('is-happy');
+                setTimeout(() => mascot.classList.remove('is-happy'), 700);
+            }
+        }, 8000);
     }
 });
 

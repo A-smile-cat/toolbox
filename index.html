@@ -105,42 +105,55 @@
 
                     <div class="cat-stage">
                         <div class="cat-bubble" id="catBubble">喵～ 欢迎来到百宝箱！</div>
-                        <svg id="catMascot" class="cat-mascot" viewBox="0 0 220 214" role="img" aria-label="程序喵吉祥物，点它试试">
-                            <!-- 尾巴 -->
-                            <path class="cat-tail" d="M148 164 C 188 168, 202 132, 188 108 C 181 96, 166 97, 163 108" fill="none" stroke="#f6a23c" stroke-width="16" stroke-linecap="round"/>
-                            <!-- 身体 -->
-                            <ellipse cx="110" cy="162" rx="56" ry="40" fill="#f6a23c"/>
-                            <ellipse cx="110" cy="172" rx="34" ry="25" fill="#ffe9cf"/>
-                            <!-- 耳朵 -->
-                            <path d="M64 62 L50 14 L98 42 Z" fill="#f6a23c"/>
-                            <path d="M156 62 L170 14 L122 42 Z" fill="#f6a23c"/>
-                            <path d="M70 54 L61 26 L92 42 Z" fill="#ffe9cf"/>
-                            <path d="M150 54 L159 26 L128 42 Z" fill="#ffe9cf"/>
-                            <!-- 头 -->
-                            <circle cx="110" cy="76" r="50" fill="#f6a23c"/>
-                            <!-- 额头条纹 -->
-                            <path d="M101 30 q7 7 0 14" stroke="#e08a2e" stroke-width="5" fill="none" stroke-linecap="round"/>
-                            <path d="M119 30 q7 7 0 14" stroke="#e08a2e" stroke-width="5" fill="none" stroke-linecap="round"/>
-                            <!-- 眼睛 -->
-                            <g class="cat-eyes">
-                                <ellipse cx="90" cy="78" rx="7" ry="10" fill="#323542"/>
-                                <ellipse cx="130" cy="78" rx="7" ry="10" fill="#323542"/>
-                                <circle cx="92.5" cy="73" r="2.4" fill="#fff"/>
-                                <circle cx="132.5" cy="73" r="2.4" fill="#fff"/>
+                        <div class="cat-hearts" id="catHearts" aria-hidden="true"></div>
+                        <svg id="catMascot" class="cat-mascot" viewBox="0 0 32 32" role="img" aria-label="程序喵吉祥物，点它试试" shape-rendering="crispEdges">
+                            <!-- 像素猫头：用 rect 一格格拼出来（1 格 = 1 单位） -->
+                            <g class="pixel-cat">
+                                <!-- 耳朵 -->
+                                <path class="cat-ear pixel" d="M4 6 h6 v-2 h2 v2 h4 v-2 h2 v2 h6 v4 h-2 v2 h-2 v2 h-4 v2 h-4 v-2 h-4 v-2 h-2 v-2 h-2 Z" fill="none"/>
+                                <!-- 左耳 -->
+                                <rect x="5" y="5" width="6" height="2" fill="#f6a23c"/>
+                                <rect x="4" y="7" width="6" height="2" fill="#f6a23c"/>
+                                <rect x="4" y="9" width="6" height="2" fill="#f6a23c"/>
+                                <rect x="6" y="7" width="3" height="3" fill="#ffd9b3"/>
+                                <!-- 右耳 -->
+                                <rect x="21" y="5" width="6" height="2" fill="#f6a23c"/>
+                                <rect x="22" y="7" width="6" height="2" fill="#f6a23c"/>
+                                <rect x="22" y="9" width="6" height="2" fill="#f6a23c"/>
+                                <rect x="23" y="7" width="3" height="3" fill="#ffd9b3"/>
+                                <!-- 脸轮廓 -->
+                                <rect x="4" y="11" width="24" height="10" fill="#f6a23c"/>
+                                <rect x="3" y="13" width="26" height="6" fill="#f6a23c"/>
+                                <!-- 脸上部橘斑 -->
+                                <rect x="9" y="11" width="2" height="3" fill="#e08a2e"/>
+                                <rect x="14" y="10" width="2" height="4" fill="#e08a2e"/>
+                                <rect x="20" y="11" width="2" height="3" fill="#e08a2e"/>
+                                <!-- 眼睛（正常，闭合成 2x2 像素点） -->
+                                <g class="pixel-eyes pixel-eyes-normal">
+                                    <rect x="9" y="15" width="3" height="3" fill="#3a3f4b"/>
+                                    <rect x="20" y="15" width="3" height="3" fill="#3a3f4b"/>
+                                    <rect x="9" y="15" width="1" height="1" fill="#ffffff"/>
+                                    <rect x="20" y="15" width="1" height="1" fill="#ffffff"/>
+                                </g>
+                                <!-- 眼睛（开心 ^^） -->
+                                <g class="pixel-eyes pixel-eyes-happy">
+                                    <path class="pixel" d="M9 18 l1-2 1 2 1-2 1 2" stroke="#3a3f4b" stroke-width="1.4" fill="none"/>
+                                    <path class="pixel" d="M20 18 l1-2 1 2 1-2 1 2" stroke="#3a3f4b" stroke-width="1.4" fill="none"/>
+                                </g>
+                                <!-- 腮红 -->
+                                <rect x="6" y="17" width="3" height="2" fill="#ffb0b8" opacity="0.8"/>
+                                <rect x="23" y="17" width="3" height="2" fill="#ffb0b8" opacity="0.8"/>
+                                <!-- 鼻子和嘴 -->
+                                <rect x="15" y="18" width="2" height="1" fill="#ff9d8a"/>
+                                <g class="pixel-mouth">
+                                    <path class="pixel" d="M15 19 l1 1 1-1" stroke="#7a4a1e" stroke-width="1" fill="none"/>
+                                </g>
+                                <!-- 胡须 -->
+                                <rect x="2" y="14" width="3" height="1" fill="#ffe9cf"/>
+                                <rect x="2" y="17" width="3" height="1" fill="#ffe9cf"/>
+                                <rect x="27" y="14" width="3" height="1" fill="#ffe9cf"/>
+                                <rect x="27" y="17" width="3" height="1" fill="#ffe9cf"/>
                             </g>
-                            <!-- 腮红 -->
-                            <ellipse cx="70" cy="94" rx="7" ry="4.5" fill="#ffb3a0" opacity="0.75"/>
-                            <ellipse cx="150" cy="94" rx="7" ry="4.5" fill="#ffb3a0" opacity="0.75"/>
-                            <!-- 鼻子和嘴 -->
-                            <path d="M104 96 L116 96 L110 103 Z" fill="#e2694f"/>
-                            <path d="M110 103 Q 105 110 98 105 M110 103 Q 115 110 122 105" stroke="#7a4a1e" stroke-width="2.4" fill="none" stroke-linecap="round"/>
-                            <!-- 胡须 -->
-                            <path d="M58 86 L36 82 M59 94 L38 97" stroke="#e08a2e" stroke-width="2.4" stroke-linecap="round"/>
-                            <path d="M162 86 L184 82 M161 94 L182 97" stroke="#e08a2e" stroke-width="2.4" stroke-linecap="round"/>
-                            <!-- 前爪 -->
-                            <ellipse cx="90" cy="204" rx="14" ry="7.5" fill="#ffe9cf"/>
-                            <ellipse cx="130" cy="204" rx="14" ry="7.5" fill="#ffe9cf"/>
-                            <path d="M85 200 v6 M95 200 v6 M125 200 v6 M135 200 v6" stroke="#e8b06a" stroke-width="2" stroke-linecap="round"/>
                         </svg>
                         <div class="cat-shadow"></div>
                     </div>
