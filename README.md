@@ -192,10 +192,12 @@ http://localhost:8010
 ## 项目结构
 
 ```text
-pdf-tool/
+toolbox/
 ├── index.html                 # 应用入口页面（含欢迎首页）
 ├── styles.css                 # 全局样式、首页与水印配置界面样式
 ├── app.js                     # PDF 处理逻辑、页面切换与交互逻辑
+├── paike-ucas/
+│   └── index.html             # UCAS排课表（独立二级页面）
 ├── vendor/                    # 本地化第三方依赖
 │   ├── pdf-lib.min.js
 │   ├── jszip.min.js
@@ -203,7 +205,6 @@ pdf-tool/
 │   └── pdf.worker.min.js
 ├── README.md                  # 项目说明文档
 ├── TECHNICAL.md               # 技术说明文档
-├── test.html                  # 测试页面
 └── .gitignore
 ```
 
