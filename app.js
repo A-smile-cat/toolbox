@@ -147,25 +147,57 @@ async function loadPdfWithDecryption(arrayBuffer) {
 }
 
 document.addEventListener('DOMContentLoaded', () => {
-    document.querySelectorAll('.tool-nav-item').forEach(item => {
+    document.querySelectorAll('[data-tool]').forEach(item => {
         item.addEventListener('click', () => openTool(item.dataset.tool));
+    });
+    document.querySelectorAll('.nav-group-header').forEach(item => {
+        item.addEventListener('click', () => item.closest('.nav-group')?.classList.toggle('open'));
     });
 
     const backBtn = document.getElementById('backBtn');
     if (backBtn) {
-        backBtn.addEventListener('click', resetToWelcome);
+        backBtn.addEventListener('click', showHomePage);
+    }
+
+    // 猫吉祥物彩蛋：点击随机换一句话
+    const mascot = document.getElementById('catMascot');
+    const bubble = document.getElementById('catBubble');
+    if (mascot && bubble) {
+        const meows = [
+            '喵～ 有什么需要帮忙的吗？',
+            '文件只会待在你的浏览器里，放心喵！',
+            '爪爪已就位，随时开工！',
+            '今天的猫粮，是写不完的代码……',
+            '水印、合并、拆分，本喵样样精通！',
+            '喵呜～ 点上面的卡片选个工具吧！',
+            '本喵不摸鱼，只在键盘上睡觉。',
+        ];
+        let meowTimer = null;
+        mascot.addEventListener('click', () => {
+            mascot.classList.remove('pounce');
+            void mascot.offsetWidth; // 重置动画
+            mascot.classList.add('pounce');
+            bubble.textContent = meows[Math.floor(Math.random() * meows.length)];
+            bubble.classList.remove('show');
+            void bubble.offsetWidth;
+            bubble.classList.add('show');
+            clearTimeout(meowTimer);
+            meowTimer = setTimeout(() => bubble.classList.remove('show'), 3200);
+        });
     }
 });
 
-function resetToWelcome() {
-    document.getElementById('tool-panel')?.classList.add('hidden');
-    const welcome = document.getElementById('welcomePlaceholder');
-    if (welcome) welcome.style.display = 'flex';
-    document.querySelectorAll('.tool-nav-item').forEach(item => item.classList.remove('active'));
-    currentTool = null;
-    files = [];
-    watermarkConfigs = [];
-    watermarkConfigCounter = 0;
+function showHomePage() {
+    const homePage = document.getElementById('homePage');
+    const toolPanel = document.getElementById('tool-panel');
+    if (homePage) homePage.style.display = 'block';
+    if (toolPanel) toolPanel.classList.add('hidden');
+
+    document.querySelectorAll('.tool-nav-item').forEach(item => {
+        item.classList.toggle('active', item.classList.contains('nav-home'));
+    });
+    const mainContent = document.querySelector('.main-content');
+    if (mainContent) mainContent.scrollTop = 0;
 }
 
 function openTool(tool) {
@@ -175,14 +207,20 @@ function openTool(tool) {
     watermarkConfigCounter = 0;
     loadTextPresets();
 
+    const homePage = document.getElementById('homePage');
     const toolPanel = document.getElementById('tool-panel');
-    const welcome = document.getElementById('welcomePlaceholder');
+    if (homePage) homePage.style.display = 'none';
     if (toolPanel) toolPanel.classList.remove('hidden');
-    if (welcome) welcome.style.display = 'none';
 
     document.querySelectorAll('.tool-nav-item').forEach(item => {
         item.classList.toggle('active', item.dataset.tool === tool);
     });
+    document.querySelectorAll('.nav-group').forEach(group => {
+        if (group.querySelector(`.tool-nav-item[data-tool="${tool}"]`)) group.classList.add('open');
+    });
+
+    const mainContent = document.querySelector('.main-content');
+    if (mainContent) mainContent.scrollTop = 0;
 
     if (tool === 'merge') renderMergeTool();
     if (tool === 'split') renderSplitTool();

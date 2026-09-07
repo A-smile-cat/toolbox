@@ -3,46 +3,225 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PDF工具 - 合并、拆分、水印</title>
+    <title>程序喵的百宝箱 — 在线小工具集</title>
+    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E🐱%3C/text%3E%3C/svg%3E">
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
+    <!-- 公共图形定义（猫爪印） -->
+    <svg width="0" height="0" style="position:absolute" aria-hidden="true">
+        <defs>
+            <g id="pawShape" fill="currentColor">
+                <ellipse cx="12" cy="16.4" rx="5.6" ry="4.3"/>
+                <ellipse cx="4.9" cy="10.6" rx="2" ry="2.8"/>
+                <ellipse cx="19.1" cy="10.6" rx="2" ry="2.8"/>
+                <ellipse cx="8.6" cy="5.6" rx="1.9" ry="2.6"/>
+                <ellipse cx="15.4" cy="5.6" rx="1.9" ry="2.6"/>
+            </g>
+        </defs>
+    </svg>
+
     <div class="app-container">
         <!-- 侧边栏 -->
         <aside class="sidebar">
             <div class="sidebar-header">
                 <div class="sidebar-logo">
-                    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+                    <svg class="logo-cat" viewBox="0 0 24 24">
+                        <g fill="currentColor">
+                            <path d="M5.4 10.4 L3.6 2.6 L10.4 6.2 Z"/>
+                            <path d="M18.6 10.4 L20.4 2.6 L13.6 6.2 Z"/>
+                            <circle cx="12" cy="15" r="7.4"/>
+                        </g>
+                        <g class="logo-cat-eyes" fill="#337ecc">
+                            <circle cx="9.3" cy="14.6" r="1.2"/>
+                            <circle cx="14.7" cy="14.6" r="1.2"/>
+                        </g>
+                        <path d="M11 17.4 L13 17.4 L12 18.8 Z" fill="#337ecc"/>
+                    </svg>
                 </div>
-                <span class="sidebar-title">PDF工具箱</span>
+                <span class="sidebar-title">程序喵的百宝箱</span>
             </div>
             <nav class="sidebar-nav">
-                <div class="tool-nav-item" data-tool="merge">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="15" height="15" rx="2"/><rect x="7" y="7" width="15" height="15" rx="2"/></svg>
-                    <span>合并PDF</span>
+                <div class="tool-nav-item nav-home active" data-page="home">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+                    <span>首页</span>
                 </div>
-                <div class="tool-nav-item" data-tool="split">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="6" cy="6" r="3"/><circle cx="6" cy="18" r="3"/><line x1="8.5" y1="12" x2="22" y2="6"/><line x1="8.5" y1="12" x2="22" y2="18"/></svg>
-                    <span>拆分PDF</span>
-                </div>
-                <div class="tool-nav-item" data-tool="watermark">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2.69l5.66 5.66a8 8 0 1 1-11.31 0z"/></svg>
-                    <span>添加水印</span>
+                <div class="nav-group open" id="pdfGroup">
+                    <div class="nav-group-header">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+                        <span>PDF 工具箱</span>
+                        <span class="nav-badge">3</span>
+                        <svg class="nav-group-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+                    </div>
+                    <div class="nav-group-body">
+                        <div class="nav-group-body-inner">
+                            <div class="tool-nav-item nav-sub-item" data-tool="merge">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="15" height="15" rx="2"/><rect x="7" y="7" width="15" height="15" rx="2"/></svg>
+                                <span>合并 PDF</span>
+                            </div>
+                            <div class="tool-nav-item nav-sub-item" data-tool="split">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="6" cy="6" r="3"/><circle cx="6" cy="18" r="3"/><line x1="8.5" y1="12" x2="22" y2="6"/><line x1="8.5" y1="12" x2="22" y2="18"/></svg>
+                                <span>拆分 PDF</span>
+                            </div>
+                            <div class="tool-nav-item nav-sub-item" data-tool="watermark">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2.69l5.66 5.66a8 8 0 1 1-11.31 0z"/></svg>
+                                <span>添加水印</span>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </nav>
+            <div class="sidebar-footer">
+                <span class="footer-paw">🐾</span>
+                <span>纯前端 · 本地处理</span>
+            </div>
         </aside>
 
         <!-- 主内容区 -->
         <main class="main-content">
-            <div id="tool-panel" class="tool-panel hidden">
-                <div id="tool-content"></div>
-            </div>
-            <div class="welcome-placeholder" id="welcomePlaceholder">
-                <div class="welcome-icon">
-                    <svg width="80" height="80" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+            <!-- 首页（欢迎页） -->
+            <section class="home-page" id="homePage">
+                <div class="home-hero">
+                    <div class="paw-trail" aria-hidden="true">
+                        <svg class="paw" viewBox="0 0 24 24"><use href="#pawShape"/></svg>
+                        <svg class="paw" viewBox="0 0 24 24"><use href="#pawShape"/></svg>
+                        <svg class="paw" viewBox="0 0 24 24"><use href="#pawShape"/></svg>
+                        <svg class="paw" viewBox="0 0 24 24"><use href="#pawShape"/></svg>
+                        <svg class="paw" viewBox="0 0 24 24"><use href="#pawShape"/></svg>
+                        <svg class="paw" viewBox="0 0 24 24"><use href="#pawShape"/></svg>
+                        <svg class="paw" viewBox="0 0 24 24"><use href="#pawShape"/></svg>
+                        <svg class="paw" viewBox="0 0 24 24"><use href="#pawShape"/></svg>
+                    </div>
+                    <svg class="hero-deco deco-yarn" viewBox="0 0 44 44" aria-hidden="true">
+                        <circle cx="20" cy="20" r="15" fill="#ffd7a8"/>
+                        <path d="M7 15 Q20 21 33 13 M6 23 Q20 28 34 21 M12 31 Q22 34 30 27" stroke="#e08a2e" stroke-width="2" fill="none" stroke-linecap="round"/>
+                        <path d="M32 28 Q41 32 37 41" stroke="#e08a2e" stroke-width="2.4" fill="none" stroke-linecap="round"/>
+                    </svg>
+                    <svg class="hero-deco deco-fish" viewBox="0 0 44 26" aria-hidden="true">
+                        <path d="M4 13 Q15 2 28 13 Q15 24 4 13 Z" fill="#a8d4ff"/>
+                        <path d="M28 13 L40 5 L37.5 13 L40 21 Z" fill="#a8d4ff"/>
+                        <circle cx="12" cy="11" r="1.8" fill="#337ecc"/>
+                    </svg>
+
+                    <div class="cat-stage">
+                        <div class="cat-bubble" id="catBubble">喵～ 欢迎来到百宝箱！</div>
+                        <svg id="catMascot" class="cat-mascot" viewBox="0 0 220 214" role="img" aria-label="程序喵吉祥物，点它试试">
+                            <!-- 尾巴 -->
+                            <path class="cat-tail" d="M148 164 C 188 168, 202 132, 188 108 C 181 96, 166 97, 163 108" fill="none" stroke="#f6a23c" stroke-width="16" stroke-linecap="round"/>
+                            <!-- 身体 -->
+                            <ellipse cx="110" cy="162" rx="56" ry="40" fill="#f6a23c"/>
+                            <ellipse cx="110" cy="172" rx="34" ry="25" fill="#ffe9cf"/>
+                            <!-- 耳朵 -->
+                            <path d="M64 62 L50 14 L98 42 Z" fill="#f6a23c"/>
+                            <path d="M156 62 L170 14 L122 42 Z" fill="#f6a23c"/>
+                            <path d="M70 54 L61 26 L92 42 Z" fill="#ffe9cf"/>
+                            <path d="M150 54 L159 26 L128 42 Z" fill="#ffe9cf"/>
+                            <!-- 头 -->
+                            <circle cx="110" cy="76" r="50" fill="#f6a23c"/>
+                            <!-- 额头条纹 -->
+                            <path d="M101 30 q7 7 0 14" stroke="#e08a2e" stroke-width="5" fill="none" stroke-linecap="round"/>
+                            <path d="M119 30 q7 7 0 14" stroke="#e08a2e" stroke-width="5" fill="none" stroke-linecap="round"/>
+                            <!-- 眼睛 -->
+                            <g class="cat-eyes">
+                                <ellipse cx="90" cy="78" rx="7" ry="10" fill="#323542"/>
+                                <ellipse cx="130" cy="78" rx="7" ry="10" fill="#323542"/>
+                                <circle cx="92.5" cy="73" r="2.4" fill="#fff"/>
+                                <circle cx="132.5" cy="73" r="2.4" fill="#fff"/>
+                            </g>
+                            <!-- 腮红 -->
+                            <ellipse cx="70" cy="94" rx="7" ry="4.5" fill="#ffb3a0" opacity="0.75"/>
+                            <ellipse cx="150" cy="94" rx="7" ry="4.5" fill="#ffb3a0" opacity="0.75"/>
+                            <!-- 鼻子和嘴 -->
+                            <path d="M104 96 L116 96 L110 103 Z" fill="#e2694f"/>
+                            <path d="M110 103 Q 105 110 98 105 M110 103 Q 115 110 122 105" stroke="#7a4a1e" stroke-width="2.4" fill="none" stroke-linecap="round"/>
+                            <!-- 胡须 -->
+                            <path d="M58 86 L36 82 M59 94 L38 97" stroke="#e08a2e" stroke-width="2.4" stroke-linecap="round"/>
+                            <path d="M162 86 L184 82 M161 94 L182 97" stroke="#e08a2e" stroke-width="2.4" stroke-linecap="round"/>
+                            <!-- 前爪 -->
+                            <ellipse cx="90" cy="204" rx="14" ry="7.5" fill="#ffe9cf"/>
+                            <ellipse cx="130" cy="204" rx="14" ry="7.5" fill="#ffe9cf"/>
+                            <path d="M85 200 v6 M95 200 v6 M125 200 v6 M135 200 v6" stroke="#e8b06a" stroke-width="2" stroke-linecap="round"/>
+                        </svg>
+                        <div class="cat-shadow"></div>
+                    </div>
+
+                    <h1 class="home-title">欢迎来到 <span class="brand-name">程序喵的百宝箱</span></h1>
+                    <p class="home-sub">这里是程序喵为你整理的在线小工具集合。所有工具仅依赖前端技术、在浏览器本地运行 —— 文件不上传、数据不收集，用得放心喵。</p>
                 </div>
-                <h2>欢迎使用 PDF工具箱</h2>
-                <p>请从左侧选择一个功能开始</p>
+
+                <div class="home-cards">
+                    <div class="feature-card" data-tool="merge">
+                        <div class="card-icon">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="15" height="15" rx="2"/><rect x="7" y="7" width="15" height="15" rx="2"/></svg>
+                        </div>
+                        <h3>合并 PDF</h3>
+                        <p>多个 PDF 按上传顺序合并为一个文件，支持批量上传。</p>
+                        <span class="card-arrow">→</span>
+                        <svg class="card-paw" viewBox="0 0 24 24"><use href="#pawShape"/></svg>
+                    </div>
+                    <div class="feature-card" data-tool="split">
+                        <div class="card-icon">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="6" cy="6" r="3"/><circle cx="6" cy="18" r="3"/><line x1="8.5" y1="12" x2="22" y2="6"/><line x1="8.5" y1="12" x2="22" y2="18"/></svg>
+                        </div>
+                        <h3>拆分 PDF</h3>
+                        <p>按页面范围提取内容，例如 1-3, 5, 7-9，秒出结果。</p>
+                        <span class="card-arrow">→</span>
+                        <svg class="card-paw" viewBox="0 0 24 24"><use href="#pawShape"/></svg>
+                    </div>
+                    <div class="feature-card" data-tool="watermark">
+                        <div class="card-icon">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2.69l5.66 5.66a8 8 0 1 1-11.31 0z"/></svg>
+                        </div>
+                        <h3>添加水印</h3>
+                        <p>文字 / 图片水印，九宫格定位、铺满重复、批量 ZIP 下载。</p>
+                        <span class="card-arrow">→</span>
+                        <svg class="card-paw" viewBox="0 0 24 24"><use href="#pawShape"/></svg>
+                    </div>
+                    <div class="feature-card more-card">
+                        <div class="card-icon more-icon">🐾</div>
+                        <h3>更多工具整理中</h3>
+                        <p>程序喵正在努力搬砖，新的子功能会陆续上架，敬请期待喵～</p>
+                        <svg class="card-paw" viewBox="0 0 24 24"><use href="#pawShape"/></svg>
+                    </div>
+                </div>
+
+                <div class="site-notice">
+                    <div class="notice-item">
+                        <strong>
+                            <span class="notice-icon lock">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="11" width="16" height="9" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>
+                            </span>
+                            纯前端 · 本地运行
+                        </strong>
+                        <p>本站仅依赖 HTML / CSS / JavaScript 等前端技术构建与部署，无需后端服务。所有文件处理都在你的浏览器本地完成，不上传、不存储任何数据。</p>
+                    </div>
+                    <div class="notice-item">
+                        <strong>
+                            <span class="notice-icon cloud">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 10h-1.26A8 8 0 1 0 9 20h9a5 5 0 0 0 0-10z"/></svg>
+                            </span>
+                            感谢 Cloudflare 提供支持
+                        </strong>
+                        <p>本站托管于 Cloudflare Pages，感谢 Cloudflare 提供的免费环境与全球节点加速，让小站可以稳定在线。</p>
+                    </div>
+                    <div class="notice-item">
+                        <strong>
+                            <span class="notice-icon globe">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><line x1="3" y1="12" x2="21" y2="12"/><path d="M12 3c2.5 2.5 4 5.6 4 9s-1.5 6.5-4 9c-2.5-2.5-4-5.6-4-9s1.5-6.5 4-9z"/></svg>
+                            </span>
+                            无法访问本站？
+                        </strong>
+                        <p>本站部署在 Cloudflare 全球网络上。如果出现无法访问的情况，多为当前网络环境所致，请尝试切换网络，或通过科学上网方式访问。</p>
+                    </div>
+                </div>
+
+                <footer class="home-footer">🐾 程序喵的百宝箱 · 纯前端驱动 · 你的文件从不离开你的设备</footer>
+            </section>
+
+            <!-- 工具面板 -->
+            <div id="tool-panel" class="tool-panel hidden">
+                <button class="back-btn" id="backBtn">‹ 返回首页</button>
+                <div id="tool-content"></div>
             </div>
         </main>
     </div>
