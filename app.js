@@ -239,6 +239,12 @@ function showHomePage() {
 }
 
 function openTool(tool) {
+    if (tool === 'paike') {
+        // 二级页面：整页跳转到 /paike-ucas/（部署后即 https://.../paike-ucas）
+        window.location.href = 'paike-ucas/';
+        return;
+    }
+
     currentTool = tool;
     files = [];
     watermarkConfigs = [];
