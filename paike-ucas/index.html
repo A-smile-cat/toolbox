@@ -57,8 +57,8 @@
 })();
 </script>
 <style>
-/* 口令门禁：未解锁时隐藏整个页面内容 */
-html:not([data-unlocked="1"]) body { display: none !important; }
+/* 口令门禁：未解锁时隐藏页面内容，但保留门禁框本身 */
+html:not([data-unlocked="1"]) body > :not(#paike-gate) { display: none !important; }
 #paike-gate{
   position: fixed; inset: 0; z-index: 9999;
   display: flex; align-items: center; justify-content: center;
@@ -660,7 +660,7 @@ body{
     <div class="gate-seal">排<br>课</div>
     <h1>选课排课表</h1>
     <div class="gate-sub">请输入访问口令</div>
-    <input type="password" id="gate-pwd" placeholder="访问口令" autofocus>
+    <input type="password" id="gate-pwd" placeholder="访问口令" autocomplete="new-password" autofocus>
     <button type="submit" class="gate-btn">进 入</button>
     <div class="gate-err" id="gate-err">口令不正确，请重试</div>
   </form>
