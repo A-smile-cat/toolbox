@@ -39,6 +39,7 @@
 ### UCAS排课表
 
 - 国科大专属选课排课工具，独立子页面：访问 `/paike-ucas/` 或从首页 / 侧边栏「UCAS排课表」进入。
+- **服务端口令门禁**：由 `functions/paike-ucas/_middleware.js`（Cloudflare Pages Functions）拦截，需输入口令才能访问；口令存于 Cloudflare 环境变量 `PAIKE_PASSWORD`（Secret），不进代码仓库。校验通过后发放 24 小时有效的 HttpOnly cookie。
 - 13 节课 / 天 × 周一至周日 × 20 周（第 1 周 2026-08-31 起算，各周日期自动计算）。
 - 添加课程时自动校验时间冲突：冲突课程只能放入候选区，无法排入课表。
 - 候选区集中管理，冲突角标与原因一目了然；支持打回候选区、编辑补全时间。
@@ -198,6 +199,9 @@ toolbox/
 ├── app.js                     # PDF 处理逻辑、页面切换与交互逻辑
 ├── paike-ucas/
 │   └── index.html             # UCAS排课表（独立二级页面）
+├── functions/
+│   └── paike-ucas/
+│       └── _middleware.js     # /paike-ucas/* 服务端口令门禁（Pages Functions）
 ├── vendor/                    # 本地化第三方依赖
 │   ├── pdf-lib.min.js
 │   ├── jszip.min.js
