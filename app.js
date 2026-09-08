@@ -9,6 +9,7 @@ let textPresets = [];
 const STORAGE_KEYS = {
     watermarkConfigs: 'pdfTool.watermarkConfigs.v1',
     textPresets: 'pdfTool.textPresets.v1',
+    quickNav: 'toolbox.quickNav.v1',
 };
 
 const DEFAULT_TEXT_PRESETS = ['仅供学习参考使用，请勿用于其它用途'];
@@ -228,7 +229,144 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         }, 8000);
     }
+
+    initQuickNav();
 });
+
+/* ============================================================
+   快捷导航：侧边栏自定义网址收藏（localStorage 持久化）
+   ============================================================ */
+const QUICK_NAV_COLORS = ['#f6a23c', '#409eff', '#67c23a', '#e6a23c', '#8b5cf6', '#f56c6c', '#00b4d8', '#ff7eb6'];
+let quickNavLinks = [];
+
+function loadQuickNav() {
+    try {
+        const stored = JSON.parse(localStorage.getItem(STORAGE_KEYS.quickNav) || '[]');
+        quickNavLinks = Array.isArray(stored) ? stored.filter(l => l && l.name && l.url) : [];
+    } catch (error) {
+        quickNavLinks = [];
+    }
+}
+
+function saveQuickNav() {
+    localStorage.setItem(STORAGE_KEYS.quickNav, JSON.stringify(quickNavLinks));
+}
+
+function quickNavFaviconUrl(url) {
+    try {
+        const host = new URL(url).hostname;
+        return `https://www.google.com/s2/favicons?domain=${host}&sz=64`;
+    } catch (error) {
+        return '';
+    }
+}
+
+function renderQuickNav() {
+    const list = document.getElementById('quickNavList');
+    const empty = document.getElementById('quickNavEmpty');
+    const badge = document.getElementById('quickNavBadge');
+    if (!list || !empty || !badge) return;
+
+    badge.textContent = String(quickNavLinks.length);
+    badge.style.display = quickNavLinks.length ? '' : 'none';
+    empty.style.display = quickNavLinks.length ? 'none' : '';
+
+    list.innerHTML = quickNavLinks.map((link, i) => `
+        <div class="tool-nav-item nav-sub-item quick-nav-item" data-index="${i}" data-url="${escapeHtml(link.url)}">
+            <span class="quick-nav-avatar" style="--quick-nav-color:${QUICK_NAV_COLORS[i % QUICK_NAV_COLORS.length]}">
+                <img src="${escapeHtml(quickNavFaviconUrl(link.url))}" alt="" loading="lazy"
+                     onerror="this.style.display='none';this.nextElementSibling.style.display='block';">
+                <span class="quick-nav-fallback" style="display:none;">${escapeHtml(link.name.slice(0, 1).toUpperCase())}</span>
+            </span>
+            <span class="quick-nav-name">${escapeHtml(link.name)}</span>
+            <button class="quick-nav-delete" data-index="${i}" title="删除">✕</button>
+        </div>
+    `).join('');
+
+    list.querySelectorAll('.quick-nav-item').forEach(item => {
+        item.addEventListener('click', (e) => {
+            if (e.target.closest('.quick-nav-delete')) return;
+            window.open(item.dataset.url, '_blank', 'noopener');
+        });
+    });
+    list.querySelectorAll('.quick-nav-delete').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            const index = Number(btn.dataset.index);
+            const link = quickNavLinks[index];
+            if (link && !confirm(`删除「${link.name}」？`)) return;
+            quickNavLinks.splice(index, 1);
+            saveQuickNav();
+            renderQuickNav();
+        });
+    });
+}
+
+function showQuickNavModal() {
+    const modal = document.createElement('div');
+    modal.className = 'modal-overlay';
+    modal.innerHTML = `
+        <div class="file-config-modal quick-nav-modal">
+            <h3>🐾 添加快捷导航</h3>
+            <p>收藏常用网址，显示在左侧「快捷导航」菜单中，点击即可新标签页打开。数据保存在本机浏览器中。</p>
+            <div class="quick-nav-form-row">
+                <label class="option-label">名称 <b>*</b></label>
+                <input type="text" class="option-input" id="quickNavName" placeholder="如：国科大教务系统" maxlength="20">
+            </div>
+            <div class="quick-nav-form-row">
+                <label class="option-label">网址 <b>*</b></label>
+                <input type="text" class="option-input" id="quickNavUrl" placeholder="https://example.com">
+            </div>
+            <div class="quick-nav-modal-err" id="quickNavErr" style="display:none;"></div>
+            <div class="modal-actions">
+                <button class="modal-secondary-btn" id="quickNavCancel">取消</button>
+                <button class="modal-primary-btn" id="quickNavSave">添加</button>
+            </div>
+        </div>
+    `;
+    document.body.appendChild(modal);
+
+    const closeModal = () => modal.remove();
+    const nameInput = modal.querySelector('#quickNavName');
+    const urlInput = modal.querySelector('#quickNavUrl');
+    const errBox = modal.querySelector('#quickNavErr');
+    const showError = (msg) => { errBox.textContent = msg; errBox.style.display = 'block'; };
+
+    modal.querySelector('#quickNavCancel').addEventListener('click', closeModal);
+    modal.addEventListener('click', (e) => { if (e.target === modal) closeModal(); });
+    modal.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeModal(); });
+
+    modal.querySelector('#quickNavSave').addEventListener('click', () => {
+        const name = nameInput.value.trim();
+        let url = urlInput.value.trim();
+        if (!name) { showError('请填写名称'); nameInput.focus(); return; }
+        if (!url) { showError('请填写网址'); urlInput.focus(); return; }
+        if (!/^https?:\/\//i.test(url)) url = 'https://' + url;
+        try {
+            new URL(url);
+        } catch (error) {
+            showError('网址格式不正确，示例：https://example.com');
+            urlInput.focus();
+            return;
+        }
+        quickNavLinks.push({ name, url });
+        saveQuickNav();
+        renderQuickNav();
+        closeModal();
+    });
+
+    setTimeout(() => nameInput.focus(), 60);
+}
+
+function initQuickNav() {
+    loadQuickNav();
+    renderQuickNav();
+    document.getElementById('quickNavAdd')?.addEventListener('click', showQuickNavModal);
+    document.getElementById('quickNavGroup')?.querySelector('.nav-group-header')
+        ?.addEventListener('click', () => {
+            document.getElementById('quickNavGroup')?.classList.toggle('open');
+        });
+}
 
 function showHomePage() {
     const homePage = document.getElementById('homePage');

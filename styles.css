@@ -43,10 +43,17 @@ body {
     justify-content: center;
     width: 36px;
     height: 36px;
-    background: linear-gradient(135deg, #409eff, #337ecc);
-    border-radius: 8px;
+    background: linear-gradient(135deg, #ffd9a8, #ffbf6e);
+    border-radius: 9px;
     color: white;
     flex-shrink: 0;
+    box-shadow: inset 0 0 0 1.5px rgba(255, 255, 255, 0.35), 0 2px 6px rgba(246, 162, 60, 0.35);
+}
+
+.logo-cat {
+    width: 26px;
+    height: 26px;
+    image-rendering: pixelated;
 }
 
 .sidebar-title {
@@ -620,6 +627,128 @@ body {
 .more-card .card-icon {
     background: #fff3dc;
     border-color: #f3d9a4;
+}
+
+/* ===== Quick Nav（快捷导航） ===== */
+.quick-nav-badge {
+    background: rgba(246, 162, 60, 0.28);
+    color: #ffc37a;
+}
+
+.quick-nav-empty {
+    padding: 12px 20px 10px 46px !important;
+    cursor: default;
+}
+
+.quick-nav-empty:hover {
+    background: transparent;
+    color: rgba(255, 255, 255, 0.65);
+}
+
+.quick-nav-hint {
+    font-size: 0.78rem;
+    line-height: 1.7;
+    color: rgba(255, 255, 255, 0.38);
+    white-space: normal;
+}
+
+.quick-nav-item {
+    cursor: pointer;
+    position: relative;
+}
+
+.quick-nav-item .quick-nav-delete {
+    position: absolute;
+    right: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 18px;
+    height: 18px;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    border: none;
+    border-radius: 4px;
+    background: transparent;
+    color: rgba(255, 255, 255, 0.5);
+    font-size: 0.72rem;
+    cursor: pointer;
+    transition: all 0.15s ease;
+}
+
+.quick-nav-item:hover .quick-nav-delete {
+    display: inline-flex;
+}
+
+.quick-nav-item .quick-nav-delete:hover {
+    background: rgba(245, 108, 108, 0.2);
+    color: #f56c6c;
+}
+
+.quick-nav-item .quick-nav-name {
+    flex: 1;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.quick-nav-avatar {
+    width: 20px;
+    height: 20px;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 5px;
+    background: var(--quick-nav-color, #f6a23c);
+    overflow: hidden;
+}
+
+.quick-nav-avatar img {
+    width: 16px;
+    height: 16px;
+    border-radius: 3px;
+    display: block;
+    background: #fff;
+    padding: 1px;
+    box-sizing: content-box;
+}
+
+.quick-nav-avatar .quick-nav-fallback {
+    font-size: 0.66rem;
+    font-weight: 700;
+    color: #fff;
+    line-height: 1;
+}
+
+.quick-nav-add {
+    color: rgba(255, 255, 255, 0.55) !important;
+}
+
+.quick-nav-add:hover {
+    color: #ffc37a !important;
+    background: rgba(246, 162, 60, 0.08) !important;
+}
+
+.quick-nav-add svg {
+    width: 15px;
+    height: 15px;
+}
+
+/* 添加导航弹窗 */
+.quick-nav-modal .quick-nav-form-row {
+    margin-bottom: 14px;
+}
+
+.quick-nav-modal .quick-nav-form-row b {
+    color: #f56c6c;
+}
+
+.quick-nav-modal-err {
+    font-size: 0.86rem;
+    color: #f56c6c;
+    margin-bottom: 6px;
 }
 
 /* ===== Home Site Notice ===== */
