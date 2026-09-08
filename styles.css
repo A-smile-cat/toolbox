@@ -635,64 +635,6 @@ body {
     color: #ffc37a;
 }
 
-.quick-nav-empty {
-    padding: 12px 20px 10px 46px !important;
-    cursor: default;
-}
-
-.quick-nav-empty:hover {
-    background: transparent;
-    color: rgba(255, 255, 255, 0.65);
-}
-
-.quick-nav-hint {
-    font-size: 0.78rem;
-    line-height: 1.7;
-    color: rgba(255, 255, 255, 0.38);
-    white-space: normal;
-}
-
-.quick-nav-item {
-    cursor: pointer;
-    position: relative;
-}
-
-.quick-nav-item .quick-nav-delete {
-    position: absolute;
-    right: 12px;
-    top: 50%;
-    transform: translateY(-50%);
-    width: 18px;
-    height: 18px;
-    display: none;
-    align-items: center;
-    justify-content: center;
-    border: none;
-    border-radius: 4px;
-    background: transparent;
-    color: rgba(255, 255, 255, 0.5);
-    font-size: 0.72rem;
-    cursor: pointer;
-    transition: all 0.15s ease;
-}
-
-.quick-nav-item:hover .quick-nav-delete {
-    display: inline-flex;
-}
-
-.quick-nav-item .quick-nav-delete:hover {
-    background: rgba(245, 108, 108, 0.2);
-    color: #f56c6c;
-}
-
-.quick-nav-item .quick-nav-name {
-    flex: 1;
-    min-width: 0;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-}
-
 .quick-nav-avatar {
     width: 20px;
     height: 20px;
@@ -720,20 +662,6 @@ body {
     font-weight: 700;
     color: #fff;
     line-height: 1;
-}
-
-.quick-nav-add {
-    color: rgba(255, 255, 255, 0.55) !important;
-}
-
-.quick-nav-add:hover {
-    color: #ffc37a !important;
-    background: rgba(246, 162, 60, 0.08) !important;
-}
-
-.quick-nav-add svg {
-    width: 15px;
-    height: 15px;
 }
 
 .todo-badge {

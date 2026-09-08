@@ -271,46 +271,6 @@ function quickNavFaviconUrl(url) {
     }
 }
 
-/* 侧边栏迷你列表（折叠分组内的快捷预览） */
-function renderQuickNavSidebar() {
-    const list = document.getElementById('quickNavList');
-    const empty = document.getElementById('quickNavEmpty');
-    if (!list || !empty) return;
-
-    updateQuickNavBadge();
-    empty.style.display = quickNavLinks.length ? 'none' : '';
-    list.innerHTML = quickNavLinks.map((link, i) => `
-        <div class="tool-nav-item nav-sub-item quick-nav-item" data-index="${i}" data-url="${escapeHtml(link.url)}">
-            <span class="quick-nav-avatar" style="--quick-nav-color:${QUICK_NAV_COLORS[i % QUICK_NAV_COLORS.length]}">
-                <img src="${escapeHtml(quickNavFaviconUrl(link.url))}" alt="" loading="lazy"
-                     onerror="this.style.display='none';this.nextElementSibling.style.display='block';">
-                <span class="quick-nav-fallback" style="display:none;">${escapeHtml(link.name.slice(0, 1).toUpperCase())}</span>
-            </span>
-            <span class="quick-nav-name">${escapeHtml(link.name)}</span>
-            <button class="quick-nav-delete" data-index="${i}" title="删除">✕</button>
-        </div>
-    `).join('');
-
-    list.querySelectorAll('.quick-nav-item').forEach(item => {
-        item.addEventListener('click', (e) => {
-            if (e.target.closest('.quick-nav-delete')) return;
-            window.open(item.dataset.url, '_blank', 'noopener');
-        });
-    });
-    list.querySelectorAll('.quick-nav-delete').forEach(btn => {
-        btn.addEventListener('click', (e) => {
-            e.stopPropagation();
-            const index = Number(btn.dataset.index);
-            const link = quickNavLinks[index];
-            if (link && !confirm(`删除「${link.name}」？`)) return;
-            quickNavLinks.splice(index, 1);
-            saveQuickNav();
-            renderQuickNavSidebar();
-            if (currentTool === 'quicknav') renderQuickNavTool();
-        });
-    });
-}
-
 /* 快捷导航工具页 */
 function renderQuickNavTool() {
     loadQuickNav();
@@ -372,7 +332,6 @@ function renderQuickNavGrid() {
             quickNavLinks.splice(index, 1);
             saveQuickNav();
             renderQuickNavGrid();
-            renderQuickNavSidebar();
         });
     });
 }
@@ -427,7 +386,6 @@ function showQuickNavModal() {
         quickNavLinks.push({ name, url });
         saveQuickNav();
         renderQuickNavGrid();
-        renderQuickNavSidebar();
         closeModal();
     });
 
@@ -436,7 +394,7 @@ function showQuickNavModal() {
 
 function initQuickNav() {
     loadQuickNav();
-    renderQuickNavSidebar();
+    updateQuickNavBadge();
 }
 
 /* ============================================================
