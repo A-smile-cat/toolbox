@@ -23,7 +23,10 @@
   function unlock(){
     document.documentElement.setAttribute("data-unlocked", "1");
     var gate = document.getElementById("paike-gate");
-    if (gate) gate.remove();
+    if (gate){
+      gate.classList.add("unlocking");          // 毛玻璃淡出
+      setTimeout(function(){ gate.remove(); }, 380);
+    }
   }
   window.__paikeCheck = function(){
     var input = document.getElementById("gate-pwd");
@@ -57,15 +60,22 @@
 })();
 </script>
 <style>
-/* 口令门禁：未解锁时隐藏页面内容，但保留门禁框本身 */
-html:not([data-unlocked="1"]) body > :not(#paike-gate) { display: none !important; }
+/* 口令门禁：毛玻璃遮罩层盖在页面上，解锁后整层移除 */
+html:not([data-unlocked="1"]) body > :not(#paike-gate) { filter: blur(14px) saturate(.9); }
+html:not([data-unlocked="1"]) { overflow: hidden; }
 #paike-gate{
   position: fixed; inset: 0; z-index: 9999;
   display: flex; align-items: center; justify-content: center;
-  background: var(--paper, #f6efe1);
+  background: rgba(246, 239, 225, 0.35);           /* 纸色半透明 */
+  backdrop-filter: blur(10px) saturate(1.1);       /* 毛玻璃：模糊+提饱和 */
+  -webkit-backdrop-filter: blur(10px) saturate(1.1);
+  transition: opacity .35s ease;
 }
+#paike-gate.unlocking{ opacity: 0; pointer-events: none; }
 #paike-gate .gate-card{
-  background: var(--card, #fdf8ec);
+  background: rgba(253, 248, 236, 0.82);           /* 卡片也带毛玻璃质感 */
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
   border: 2px solid var(--ink, #2b2417);
   border-radius: 8px;
   box-shadow: 0 10px 40px rgba(43,36,23,.25);
