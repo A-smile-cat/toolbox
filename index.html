@@ -66,8 +66,8 @@
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
                     <span>UCAS排课表</span>
                 </div>
-                <div class="nav-group" id="quickNavGroup">
-                    <div class="nav-group-header">
+                <div class="nav-group open" id="quickNavGroup">
+                    <div class="nav-group-header" data-tool="quicknav" title="打开快捷导航页面">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
                         <span>快捷导航</span>
                         <span class="nav-badge quick-nav-badge" id="quickNavBadge" style="display:none;">0</span>
@@ -76,15 +76,16 @@
                     <div class="nav-group-body">
                         <div class="nav-group-body-inner">
                             <div class="nav-sub-item quick-nav-empty" id="quickNavEmpty">
-                                <span class="quick-nav-hint">还没有收藏的网址<br>点下面「＋ 添加」开始收藏喵</span>
+                                <span class="quick-nav-hint">还没有收藏的网址<br>点击「快捷导航」去添加喵</span>
                             </div>
                             <div id="quickNavList"></div>
-                            <div class="tool-nav-item nav-sub-item quick-nav-add" id="quickNavAdd">
-                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-                                <span>添加导航</span>
-                            </div>
                         </div>
                     </div>
+                </div>
+                <div class="tool-nav-item" data-tool="todo">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+                    <span>待办备忘录</span>
+                    <span class="nav-badge todo-badge" id="todoBadge" style="display:none;">0</span>
                 </div>
                 <div class="nav-group open" id="pdfGroup">
                     <div class="nav-group-header">
@@ -236,6 +237,24 @@
                         </div>
                         <h3>UCAS排课表</h3>
                         <p>国科大专属选课排课工具：自动冲突校验、候选区管理，支持 JSON / Excel / 周课表图片导出。</p>
+                        <span class="card-arrow">→</span>
+                        <svg class="card-paw" viewBox="0 0 24 24"><use href="#pawShape"/></svg>
+                    </div>
+                    <div class="feature-card" data-tool="quicknav">
+                        <div class="card-icon">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+                        </div>
+                        <h3>快捷导航</h3>
+                        <p>自定义收藏常用网址，卡片式管理，点击直达，数量不限。</p>
+                        <span class="card-arrow">→</span>
+                        <svg class="card-paw" viewBox="0 0 24 24"><use href="#pawShape"/></svg>
+                    </div>
+                    <div class="feature-card" data-tool="todo">
+                        <div class="card-icon">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+                        </div>
+                        <h3>待办备忘录</h3>
+                        <p>记录待办事项与随手备忘，支持优先级、完成勾选与筛选。</p>
                         <span class="card-arrow">→</span>
                         <svg class="card-paw" viewBox="0 0 24 24"><use href="#pawShape"/></svg>
                     </div>

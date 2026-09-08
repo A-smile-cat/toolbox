@@ -10,6 +10,8 @@ const STORAGE_KEYS = {
     watermarkConfigs: 'pdfTool.watermarkConfigs.v1',
     textPresets: 'pdfTool.textPresets.v1',
     quickNav: 'toolbox.quickNav.v1',
+    todoItems: 'toolbox.todoItems.v1',
+    memoItems: 'toolbox.memoItems.v1',
 };
 
 const DEFAULT_TEXT_PRESETS = ['仅供学习参考使用，请勿用于其它用途'];
@@ -234,7 +236,7 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 /* ============================================================
-   快捷导航：侧边栏自定义网址收藏（localStorage 持久化）
+   快捷导航：卡片式网址收藏页（localStorage 持久化）
    ============================================================ */
 const QUICK_NAV_COLORS = ['#f6a23c', '#409eff', '#67c23a', '#e6a23c', '#8b5cf6', '#f56c6c', '#00b4d8', '#ff7eb6'];
 let quickNavLinks = [];
@@ -250,6 +252,14 @@ function loadQuickNav() {
 
 function saveQuickNav() {
     localStorage.setItem(STORAGE_KEYS.quickNav, JSON.stringify(quickNavLinks));
+    updateQuickNavBadge();
+}
+
+function updateQuickNavBadge() {
+    const badge = document.getElementById('quickNavBadge');
+    if (!badge) return;
+    badge.textContent = String(quickNavLinks.length);
+    badge.style.display = quickNavLinks.length ? '' : 'none';
 }
 
 function quickNavFaviconUrl(url) {
@@ -261,16 +271,14 @@ function quickNavFaviconUrl(url) {
     }
 }
 
-function renderQuickNav() {
+/* 侧边栏迷你列表（折叠分组内的快捷预览） */
+function renderQuickNavSidebar() {
     const list = document.getElementById('quickNavList');
     const empty = document.getElementById('quickNavEmpty');
-    const badge = document.getElementById('quickNavBadge');
-    if (!list || !empty || !badge) return;
+    if (!list || !empty) return;
 
-    badge.textContent = String(quickNavLinks.length);
-    badge.style.display = quickNavLinks.length ? '' : 'none';
+    updateQuickNavBadge();
     empty.style.display = quickNavLinks.length ? 'none' : '';
-
     list.innerHTML = quickNavLinks.map((link, i) => `
         <div class="tool-nav-item nav-sub-item quick-nav-item" data-index="${i}" data-url="${escapeHtml(link.url)}">
             <span class="quick-nav-avatar" style="--quick-nav-color:${QUICK_NAV_COLORS[i % QUICK_NAV_COLORS.length]}">
@@ -297,7 +305,74 @@ function renderQuickNav() {
             if (link && !confirm(`删除「${link.name}」？`)) return;
             quickNavLinks.splice(index, 1);
             saveQuickNav();
-            renderQuickNav();
+            renderQuickNavSidebar();
+            if (currentTool === 'quicknav') renderQuickNavTool();
+        });
+    });
+}
+
+/* 快捷导航工具页 */
+function renderQuickNavTool() {
+    loadQuickNav();
+    const toolContent = document.getElementById('tool-content');
+    toolContent.innerHTML = `
+        <div class="quicknav-page">
+            <div class="quicknav-toolbar">
+                <div>
+                    <h2>快捷导航</h2>
+                    <p class="tool-desc">收藏常用网址，点击卡片直达；数据保存在本机浏览器中。</p>
+                </div>
+                <button class="quicknav-add-btn" id="quicknavToolAdd">＋ 添加导航</button>
+            </div>
+            <div class="quicknav-grid" id="quicknavGrid"></div>
+            <div class="quicknav-empty-state" id="quicknavEmptyState" style="display:none;">
+                <div class="quicknav-empty-icon">🐾</div>
+                <p>还没有收藏任何网址</p>
+                <p class="quicknav-empty-sub">点右上角「＋ 添加导航」，把常用的网站收进来吧喵～</p>
+            </div>
+        </div>
+    `;
+    renderQuickNavGrid();
+    document.getElementById('quicknavToolAdd').addEventListener('click', () => showQuickNavModal());
+}
+
+function renderQuickNavGrid() {
+    const grid = document.getElementById('quicknavGrid');
+    const emptyState = document.getElementById('quicknavEmptyState');
+    if (!grid) return;
+    emptyState.style.display = quickNavLinks.length ? 'none' : 'block';
+
+    grid.innerHTML = quickNavLinks.map((link, i) => `
+        <div class="quicknav-card" data-index="${i}" data-url="${escapeHtml(link.url)}" title="${escapeHtml(link.url)}">
+            <div class="quicknav-card-head">
+                <span class="quick-nav-avatar" style="--quick-nav-color:${QUICK_NAV_COLORS[i % QUICK_NAV_COLORS.length]}">
+                    <img src="${escapeHtml(quickNavFaviconUrl(link.url))}" alt="" loading="lazy"
+                         onerror="this.style.display='none';this.nextElementSibling.style.display='block';">
+                    <span class="quick-nav-fallback" style="display:none;">${escapeHtml(link.name.slice(0, 1).toUpperCase())}</span>
+                </span>
+                <button class="quicknav-card-delete" data-index="${i}" title="删除">✕</button>
+            </div>
+            <div class="quicknav-card-name">${escapeHtml(link.name)}</div>
+            <div class="quicknav-card-url">${escapeHtml(link.url.replace(/^https?:\/\//i, ''))}</div>
+        </div>
+    `).join('');
+
+    grid.querySelectorAll('.quicknav-card').forEach(card => {
+        card.addEventListener('click', (e) => {
+            if (e.target.closest('.quicknav-card-delete')) return;
+            window.open(card.dataset.url, '_blank', 'noopener');
+        });
+    });
+    grid.querySelectorAll('.quicknav-card-delete').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            const index = Number(btn.dataset.index);
+            const link = quickNavLinks[index];
+            if (link && !confirm(`删除「${link.name}」？`)) return;
+            quickNavLinks.splice(index, 1);
+            saveQuickNav();
+            renderQuickNavGrid();
+            renderQuickNavSidebar();
         });
     });
 }
@@ -308,7 +383,7 @@ function showQuickNavModal() {
     modal.innerHTML = `
         <div class="file-config-modal quick-nav-modal">
             <h3>🐾 添加快捷导航</h3>
-            <p>收藏常用网址，显示在左侧「快捷导航」菜单中，点击即可新标签页打开。数据保存在本机浏览器中。</p>
+            <p>收藏常用网址，显示在「快捷导航」页面中，点击即可新标签页打开。数据保存在本机浏览器中。</p>
             <div class="quick-nav-form-row">
                 <label class="option-label">名称 <b>*</b></label>
                 <input type="text" class="option-input" id="quickNavName" placeholder="如：国科大教务系统" maxlength="20">
@@ -351,7 +426,8 @@ function showQuickNavModal() {
         }
         quickNavLinks.push({ name, url });
         saveQuickNav();
-        renderQuickNav();
+        renderQuickNavGrid();
+        renderQuickNavSidebar();
         closeModal();
     });
 
@@ -360,12 +436,229 @@ function showQuickNavModal() {
 
 function initQuickNav() {
     loadQuickNav();
-    renderQuickNav();
-    document.getElementById('quickNavAdd')?.addEventListener('click', showQuickNavModal);
-    document.getElementById('quickNavGroup')?.querySelector('.nav-group-header')
-        ?.addEventListener('click', () => {
-            document.getElementById('quickNavGroup')?.classList.toggle('open');
+    renderQuickNavSidebar();
+}
+
+/* ============================================================
+   待办备忘录：待办事项 + 备忘便签（localStorage 持久化）
+   ============================================================ */
+const TODO_PRIORITIES = [
+    { key: 'high', label: '高', color: '#f56c6c' },
+    { key: 'mid', label: '中', color: '#e6a23c' },
+    { key: 'low', label: '低', color: '#67c23a' },
+];
+let todoItems = [];
+let memoItems = [];
+let todoFilter = 'all';
+
+function loadTodoData() {
+    try {
+        const todos = JSON.parse(localStorage.getItem(STORAGE_KEYS.todoItems) || '[]');
+        todoItems = Array.isArray(todos) ? todos.filter(t => t && t.id && t.text) : [];
+    } catch (error) { todoItems = []; }
+    try {
+        const memos = JSON.parse(localStorage.getItem(STORAGE_KEYS.memoItems) || '[]');
+        memoItems = Array.isArray(memos) ? memos.filter(m => m && m.id && m.text) : [];
+    } catch (error) { memoItems = []; }
+}
+
+function saveTodoData() {
+    localStorage.setItem(STORAGE_KEYS.todoItems, JSON.stringify(todoItems));
+    localStorage.setItem(STORAGE_KEYS.memoItems, JSON.stringify(memoItems));
+    updateTodoBadge();
+}
+
+function updateTodoBadge() {
+    const badge = document.getElementById('todoBadge');
+    if (!badge) return;
+    const open = todoItems.filter(t => !t.done).length;
+    badge.textContent = String(open);
+    badge.style.display = open ? '' : 'none';
+}
+
+function renderTodoTool() {
+    loadTodoData();
+    const toolContent = document.getElementById('tool-content');
+    toolContent.innerHTML = `
+        <div class="todo-page">
+            <div class="todo-columns">
+                <!-- 待办清单 -->
+                <section class="todo-panel">
+                    <div class="todo-panel-head">
+                        <h2>✅ 待办清单</h2>
+                        <div class="todo-filters" id="todoFilters">
+                            <button class="todo-filter ${todoFilter === 'all' ? 'active' : ''}" data-filter="all">全部</button>
+                            <button class="todo-filter ${todoFilter === 'open' ? 'active' : ''}" data-filter="open">未完成</button>
+                            <button class="todo-filter ${todoFilter === 'done' ? 'active' : ''}" data-filter="done">已完成</button>
+                        </div>
+                    </div>
+                    <form class="todo-input-row" id="todoForm">
+                        <input type="text" class="option-input" id="todoText" placeholder="要做什么？回车快速添加" maxlength="80">
+                        <select class="option-input todo-prio-select" id="todoPrio" title="优先级">
+                            ${TODO_PRIORITIES.map(p => `<option value="${p.key}" ${p.key === 'mid' ? 'selected' : ''}>${p.label}</option>`).join('')}
+                        </select>
+                        <button type="submit" class="todo-add-btn">添加</button>
+                    </form>
+                    <div class="todo-list" id="todoList"></div>
+                    <div class="todo-empty" id="todoEmpty" style="display:none;">空空如也，添加一条待办吧 🐾</div>
+                    <button class="todo-clear-done" id="todoClearDone">清空已完成</button>
+                </section>
+
+                <!-- 备忘便签 -->
+                <section class="memo-panel">
+                    <div class="todo-panel-head">
+                        <h2>📝 备忘便签</h2>
+                        <button class="todo-add-btn" id="memoAdd">＋ 新便签</button>
+                    </div>
+                    <div class="memo-grid" id="memoGrid"></div>
+                    <div class="todo-empty" id="memoEmpty" style="display:none;">还没有便签，随手记一条吧 🐾</div>
+                </section>
+            </div>
+        </div>
+    `;
+    renderTodoList();
+    renderMemoGrid();
+    updateTodoBadge();
+
+    document.getElementById('todoForm').addEventListener('submit', (e) => {
+        e.preventDefault();
+        const text = document.getElementById('todoText').value.trim();
+        if (!text) return;
+        todoItems.unshift({
+            id: 't-' + Date.now().toString(36) + Math.random().toString(36).slice(2, 6),
+            text,
+            priority: document.getElementById('todoPrio').value,
+            done: false,
+            createdAt: Date.now(),
         });
+        saveTodoData();
+        renderTodoList();
+        document.getElementById('todoText').value = '';
+        document.getElementById('todoText').focus();
+    });
+
+    document.getElementById('todoFilters').querySelectorAll('.todo-filter').forEach(btn => {
+        btn.addEventListener('click', () => {
+            todoFilter = btn.dataset.filter;
+            document.getElementById('todoFilters').querySelectorAll('.todo-filter')
+                .forEach(b => b.classList.toggle('active', b === btn));
+            renderTodoList();
+        });
+    });
+
+    document.getElementById('todoClearDone').addEventListener('click', () => {
+        const doneCount = todoItems.filter(t => t.done).length;
+        if (!doneCount) return;
+        if (!confirm(`清空 ${doneCount} 条已完成的待办？`)) return;
+        todoItems = todoItems.filter(t => !t.done);
+        saveTodoData();
+        renderTodoList();
+    });
+
+    document.getElementById('memoAdd').addEventListener('click', () => {
+        memoItems.unshift({
+            id: 'm-' + Date.now().toString(36) + Math.random().toString(36).slice(2, 6),
+            text: '',
+            createdAt: Date.now(),
+        });
+        saveTodoData();
+        renderMemoGrid(true);
+    });
+}
+
+function renderTodoList() {
+    const list = document.getElementById('todoList');
+    const empty = document.getElementById('todoEmpty');
+    if (!list) return;
+
+    const visible = todoItems.filter(t =>
+        todoFilter === 'all' ? true : todoFilter === 'done' ? t.done : !t.done
+    );
+    empty.style.display = visible.length ? 'none' : 'block';
+    list.innerHTML = visible.map(item => {
+        const prio = TODO_PRIORITIES.find(p => p.key === item.priority) || TODO_PRIORITIES[1];
+        return `
+            <div class="todo-item ${item.done ? 'done' : ''}" data-id="${item.id}">
+                <button class="todo-check" title="${item.done ? '标记为未完成' : '标记为完成'}">${item.done ? '✓' : ''}</button>
+                <span class="todo-prio-dot" style="background:${prio.color}" title="优先级：${prio.label}"></span>
+                <span class="todo-text">${escapeHtml(item.text)}</span>
+                <button class="todo-del" title="删除">✕</button>
+            </div>
+        `;
+    }).join('');
+
+    list.querySelectorAll('.todo-item').forEach(itemEl => {
+        const id = itemEl.dataset.id;
+        itemEl.querySelector('.todo-check').addEventListener('click', () => {
+            const item = todoItems.find(t => t.id === id);
+            if (!item) return;
+            item.done = !item.done;
+            saveTodoData();
+            renderTodoList();
+        });
+        itemEl.querySelector('.todo-del').addEventListener('click', () => {
+            const item = todoItems.find(t => t.id === id);
+            if (item && !confirm(`删除待办「${item.text}」？`)) return;
+            todoItems = todoItems.filter(t => t.id !== id);
+            saveTodoData();
+            renderTodoList();
+        });
+        itemEl.querySelector('.todo-text').addEventListener('dblclick', () => {
+            const item = todoItems.find(t => t.id === id);
+            if (!item) return;
+            const next = prompt('修改待办内容：', item.text);
+            if (next === null) return;
+            const text = next.trim();
+            if (!text) return;
+            item.text = text;
+            saveTodoData();
+            renderTodoList();
+        });
+    });
+}
+
+const MEMO_COLORS = ['#fff8d6', '#e8f5e9', '#e3f2fd', '#fde8ef', '#f3e8ff', '#fff3e0'];
+
+function renderMemoGrid(focusNew = false) {
+    const grid = document.getElementById('memoGrid');
+    const empty = document.getElementById('memoEmpty');
+    if (!grid) return;
+    empty.style.display = memoItems.length ? 'none' : 'block';
+
+    grid.innerHTML = memoItems.map((memo, i) => `
+        <div class="memo-card" data-id="${memo.id}" style="--memo-bg:${MEMO_COLORS[i % MEMO_COLORS.length]}">
+            <textarea class="memo-text" placeholder="写点什么…" maxlength="500">${escapeHtml(memo.text)}</textarea>
+            <div class="memo-foot">
+                <span class="memo-date">${new Date(memo.createdAt).toLocaleDateString('zh-CN')}</span>
+                <button class="memo-del" title="删除便签">✕</button>
+            </div>
+        </div>
+    `).join('');
+
+    grid.querySelectorAll('.memo-card').forEach(card => {
+        const id = card.dataset.id;
+        const ta = card.querySelector('.memo-text');
+        ta.addEventListener('input', () => {
+            const memo = memoItems.find(m => m.id === id);
+            if (!memo) return;
+            memo.text = ta.value;
+            /* 输入时只保存，不重渲染，避免光标跳动 */
+            localStorage.setItem(STORAGE_KEYS.memoItems, JSON.stringify(memoItems));
+        });
+        ta.addEventListener('blur', updateTodoBadge);
+        card.querySelector('.memo-del').addEventListener('click', () => {
+            const memo = memoItems.find(m => m.id === id);
+            const preview = memo && memo.text ? `「${memo.text.slice(0, 12)}…」` : '这条便签';
+            if (!confirm(`删除${preview}？`)) return;
+            memoItems = memoItems.filter(m => m.id !== id);
+            saveTodoData();
+            renderMemoGrid();
+        });
+    });
+
+    if (focusNew && grid.firstElementChild) {
+        grid.firstElementChild.querySelector('.memo-text')?.focus();
+    }
 }
 
 function showHomePage() {
@@ -409,6 +702,8 @@ function openTool(tool) {
     const mainContent = document.querySelector('.main-content');
     if (mainContent) mainContent.scrollTop = 0;
 
+    if (tool === 'quicknav') renderQuickNavTool();
+    if (tool === 'todo') renderTodoTool();
     if (tool === 'merge') renderMergeTool();
     if (tool === 'split') renderSplitTool();
     if (tool === 'watermark') renderWatermarkTool();
