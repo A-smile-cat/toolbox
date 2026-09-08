@@ -282,7 +282,11 @@ function renderQuickNavTool() {
                     <h2>快捷导航</h2>
                     <p class="tool-desc">收藏常用网址，点击卡片直达；数据保存在本机浏览器中。</p>
                 </div>
-                <button class="quicknav-add-btn" id="quicknavToolAdd">＋ 添加导航</button>
+                <div class="quicknav-actions">
+                    <button class="quicknav-io-btn" id="quicknavExport" title="导出为 JSON 备份">导出</button>
+                    <button class="quicknav-io-btn" id="quicknavImport" title="从 JSON 文件导入">导入</button>
+                    <button class="quicknav-add-btn" id="quicknavToolAdd">＋ 添加导航</button>
+                </div>
             </div>
             <div class="quicknav-grid" id="quicknavGrid"></div>
             <div class="quicknav-empty-state" id="quicknavEmptyState" style="display:none;">
@@ -294,6 +298,8 @@ function renderQuickNavTool() {
     `;
     renderQuickNavGrid();
     document.getElementById('quicknavToolAdd').addEventListener('click', () => showQuickNavModal());
+    document.getElementById('quicknavExport').addEventListener('click', exportQuickNavJson);
+    document.getElementById('quicknavImport').addEventListener('click', importQuickNavJson);
 }
 
 function renderQuickNavGrid() {
@@ -395,6 +401,89 @@ function showQuickNavModal() {
 function initQuickNav() {
     loadQuickNav();
     updateQuickNavBadge();
+}
+
+/* ---------- 快捷导航 + 待办备忘录 JSON 备份 / 恢复 ---------- */
+function collectBackupData() {
+    loadQuickNav();
+    loadTodoData();
+    return {
+        app: 'toolbox',
+        version: 1,
+        exportedAt: new Date().toISOString(),
+        quickNav: quickNavLinks,
+        todo: todoItems,
+        memo: memoItems,
+    };
+}
+
+function downloadJsonBackup(data) {
+    const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = `百宝箱备份_${new Date().toISOString().slice(0, 10)}.json`;
+    document.body.appendChild(a);
+    a.click();
+    setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 300);
+}
+
+function exportQuickNavJson() {
+    const data = collectBackupData();
+    if (!data.quickNav.length) {
+        alert('还没有收藏任何网址，先添加一条再导出喵～');
+        return;
+    }
+    downloadJsonBackup(data);
+}
+
+function importQuickNavJson() {
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.accept = '.json,application/json';
+    input.onchange = () => {
+        const file = input.files && input.files[0];
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = () => {
+            try {
+                const data = JSON.parse(reader.result);
+                const nav = Array.isArray(data.quickNav) ? data.quickNav.filter(l => l && l.name && l.url) : null;
+                if (!nav) throw new Error('bad');
+                const navCount = quickNavLinks.length;
+                if (navCount && !confirm(`当前已有 ${navCount} 条导航，导入将合并（同名网址会去重）。继续？`)) return;
+                const seen = new Set(quickNavLinks.map(l => l.url));
+                let added = 0;
+                for (const link of nav) {
+                    if (seen.has(link.url)) continue;
+                    quickNavLinks.push({ name: String(link.name), url: String(link.url) });
+                    seen.add(link.url);
+                    added++;
+                }
+                saveQuickNav();
+                renderQuickNavGrid();
+                /* 备份文件里若带待办/便签，一并询问是否合并恢复 */
+                let extraMsg = '';
+                if (Array.isArray(data.todo) || Array.isArray(data.memo)) {
+                    const todos = Array.isArray(data.todo) ? data.todo.filter(t => t && t.id && t.text) : [];
+                    const memos = Array.isArray(data.memo) ? data.memo.filter(m => m && m.id && m.text) : [];
+                    if ((todos.length || memos.length) &&
+                        confirm(`备份文件中还包含 ${todos.length} 条待办、${memos.length} 条便签，也一并恢复（合并去重）？`)) {
+                        const todoIds = new Set(todoItems.map(t => t.id));
+                        const memoIds = new Set(memoItems.map(m => m.id));
+                        todoItems = [...todoItems, ...todos.filter(t => !todoIds.has(t.id))];
+                        memoItems = [...memoItems, ...memos.filter(m => !memoIds.has(m.id))];
+                        saveTodoData();
+                        extraMsg = `；待办 ${todos.length} 条、便签 ${memos.length} 条已合并`;
+                    }
+                }
+                alert(`导入完成：新增导航 ${added} 条${extraMsg}。`);
+            } catch (error) {
+                alert('导入失败：文件格式不正确（需要本站导出的 JSON 备份文件）');
+            }
+        };
+        reader.readAsText(file);
+    };
+    input.click();
 }
 
 /* ============================================================
