@@ -150,6 +150,11 @@ document.addEventListener('DOMContentLoaded', () => {
     document.querySelectorAll('[data-tool]').forEach(item => {
         item.addEventListener('click', () => openTool(item.dataset.tool));
     });
+    document.querySelectorAll('[data-page]').forEach(item => {
+        item.addEventListener('click', () => {
+            if (item.dataset.page === 'home') showHomePage();
+        });
+    });
     document.querySelectorAll('.nav-group-header').forEach(item => {
         item.addEventListener('click', () => item.closest('.nav-group')?.classList.toggle('open'));
     });

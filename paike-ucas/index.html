@@ -4,6 +4,115 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>选课排课表（国科大专属） · 冲突校验台</title>
+<script>
+/* ---------------- 访问口令（纯前端门禁） ----------------
+   页面内容先整体隐藏，通过校验后才显示；
+   校验值存 sessionStorage，本标签页会话内无需重复输入。 */
+(function(){
+  "use strict";
+  /* sha256("ucas-miao-talk") 前 32 位十六进制，避免明文出现在页面源码 */
+  var HASH = "e1e51d2ea54c68fed969712aa32775c6441b9e5a6a322254a5a555e1ae5db33f";
+  function sha256Hex(str){
+    return crypto.subtle.digest("SHA-256", new TextEncoder().encode(str))
+      .then(function(buf){
+        return Array.from(new Uint8Array(buf)).map(function(b){
+          return b.toString(16).padStart(2, "0");
+        }).join("");
+      });
+  }
+  function unlock(){
+    document.documentElement.setAttribute("data-unlocked", "1");
+    var gate = document.getElementById("paike-gate");
+    if (gate) gate.remove();
+  }
+  window.__paikeCheck = function(){
+    var input = document.getElementById("gate-pwd");
+    var err = document.getElementById("gate-err");
+    var val = input ? input.value : "";
+    sha256Hex(val).then(function(h){
+      if (h === HASH){
+        try { sessionStorage.setItem("paike.unlocked", "1"); } catch(e){}
+        unlock();
+      } else {
+        if (err){
+          err.textContent = "口令不正确，请重试";
+          err.style.display = "block";
+        }
+        if (input){
+          input.value = "";
+          input.focus();
+        }
+      }
+    });
+  };
+  document.addEventListener("DOMContentLoaded", function(){
+    var form = document.getElementById("gate-form");
+    if (form){
+      form.addEventListener("submit", function(e){ e.preventDefault(); window.__paikeCheck(); });
+    }
+    var unlocked = false;
+    try { unlocked = sessionStorage.getItem("paike.unlocked") === "1"; } catch(e){}
+    if (unlocked){ unlock(); }
+  });
+})();
+</script>
+<style>
+/* 口令门禁：未解锁时隐藏整个页面内容 */
+html:not([data-unlocked="1"]) body { display: none !important; }
+#paike-gate{
+  position: fixed; inset: 0; z-index: 9999;
+  display: flex; align-items: center; justify-content: center;
+  background: var(--paper, #f6efe1);
+}
+#paike-gate .gate-card{
+  background: var(--card, #fdf8ec);
+  border: 2px solid var(--ink, #2b2417);
+  border-radius: 8px;
+  box-shadow: 0 10px 40px rgba(43,36,23,.25);
+  padding: 34px 36px 30px;
+  width: min(380px, 90vw);
+  font-family: var(--serif, serif);
+  color: var(--ink, #2b2417);
+}
+#paike-gate .gate-seal{
+  width: 46px; height: 46px; margin: 0 auto 14px;
+  background: var(--red, #a93b2c); color: #fdf3e2;
+  border-radius: 8px; transform: rotate(-4deg);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 20px; line-height: 1.1; letter-spacing: 1px;
+  font-family: var(--display, serif);
+  box-shadow: inset 0 0 0 2px rgba(253,243,226,.35), 0 2px 6px rgba(125,36,23,.28);
+  user-select: none;
+}
+#paike-gate h1{
+  font-size: 19px; text-align: center; letter-spacing: 3px;
+  margin: 0 0 6px; font-weight: 700;
+}
+#paike-gate .gate-sub{
+  font-size: 12px; color: var(--ink-2, #6f6350);
+  text-align: center; letter-spacing: 1.5px; margin-bottom: 18px;
+}
+#paike-gate input{
+  width: 100%; padding: 10px 12px;
+  font-size: 14px; font-family: var(--serif, serif);
+  color: var(--ink, #2b2417); background: #fffaf0;
+  border: 1.5px solid var(--rule-2, #cbb98f); border-radius: 4px;
+  outline: none; box-sizing: border-box;
+}
+#paike-gate input:focus{ border-color: var(--red, #a93b2c); box-shadow: 0 0 0 3px rgba(169,59,44,.12); }
+#paike-gate .gate-btn{
+  width: 100%; margin-top: 14px; padding: 10px;
+  font-size: 14px; letter-spacing: 3px; cursor: pointer;
+  color: #fdf3e2; background: var(--red, #a93b2c);
+  border: none; border-radius: 4px; font-family: var(--serif, serif);
+  transition: background .15s;
+}
+#paike-gate .gate-btn:hover{ background: var(--red-deep, #7d2417); }
+#paike-gate .gate-err{
+  display: none; margin-top: 10px;
+  font-size: 12.5px; color: var(--red, #a93b2c); text-align: center; letter-spacing: 1px;
+}
+</style>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=ZCOOL+XiaoWei&family=Noto+Serif+SC:wght@400;500;700;900&display=swap" rel="stylesheet">
@@ -544,6 +653,18 @@ body{
 </style>
 </head>
 <body>
+
+<!-- ===== 口令门禁（校验通过后由脚本移除） ===== -->
+<div id="paike-gate">
+  <form class="gate-card" id="gate-form" autocomplete="off">
+    <div class="gate-seal">排<br>课</div>
+    <h1>选课排课表</h1>
+    <div class="gate-sub">请输入访问口令</div>
+    <input type="password" id="gate-pwd" placeholder="访问口令" autofocus>
+    <button type="submit" class="gate-btn">进 入</button>
+    <div class="gate-err" id="gate-err">口令不正确，请重试</div>
+  </form>
+</div>
 
 <!-- ===== 顶栏 ===== -->
 <header class="masthead">
